@@ -38,8 +38,12 @@ struct FFProbeOutput {
 fn format_time(seconds: f64) -> String {
     let hours = (seconds / 3600.0).floor() as u32;
     let minutes = ((seconds % 3600.0) / 60.0).floor() as u32;
-    let seconds = (seconds % 60.0).floor() as u32;
-    format!("{:02}:{:02}:{:02}", hours, minutes, seconds)
+    let secs = (seconds % 60.0).floor() as u32;
+    let milliseconds = ((seconds % 1.0) * 1000.0).round() as u32;
+    format!(
+        "{:02}:{:02}:{:02}.{:03}",
+        hours, minutes, secs, milliseconds
+    )
 }
 
 fn parse_fps(avg_frame_rate: &str) -> Result<f64, Box<dyn std::error::Error>> {
