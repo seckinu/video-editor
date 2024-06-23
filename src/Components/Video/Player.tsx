@@ -1,4 +1,4 @@
-import { JSX, Show, createEffect, createSignal, onCleanup } from "solid-js";
+import { JSX, Show, createEffect, onCleanup } from "solid-js";
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { videoState, setVideoState, videoMetadata, togglePlay, selectFile } from "@/Stores/VideoStore";
 import PlayerControls from "./PlayerControls";
@@ -56,7 +56,7 @@ export default function VideoPlayer(_props: VideoPlayerProps) {
 		<div class="relative flex flex-col w-full h-full max-w-full max-h-full">
 			<nav class="flex justify-between items-center bg-slate-700 p-2">
 				<ul>
-					<button onClick={selectFile} class="px-2 py-1 bg-green-500 text-white rounded">Select Video</button>
+					<button onClick={selectFile} class="px-2 py-1 bg-green-500 text-white rounded">Open...</button>
 				</ul>
 				<ul>
 					<button
@@ -65,7 +65,7 @@ export default function VideoPlayer(_props: VideoPlayerProps) {
 						}}
 						class="px-2 py-1 bg-red-500 text-white rounded"
 					>
-						Crop Video
+						Crop
 					</button>
 				</ul>
 			</nav>
