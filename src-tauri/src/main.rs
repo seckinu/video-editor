@@ -1,14 +1,39 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use specta::collect_types;
+use serde::{Deserialize, Serialize};
+use specta::{collect_types, Type};
 use std::process::Command;
+use std::str;
 use std::sync::Mutex;
 use tauri::api::dialog::FileDialogBuilder;
 use tauri::State;
 use tauri_specta::ts;
 
 struct VideoFilePath(Mutex<Option<String>>);
+
+#[derive(Serialize, Deserialize, Type)]
+struct VideoMetadata {
+    file_path: String,
+    duration: f64,
+    fps: f64,
+}
+#[derive(Debug, Deserialize)]
+struct FFProbeStream {
+    #[serde(rename = "avg_frame_rate")]
+    avg_frame_rate: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct FFProbeFormat {
+    duration: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct FFProbeOutput {
+    streams: Vec<FFProbeStream>,
+    format: FFProbeFormat,
+}
 
 fn format_time(seconds: f64) -> String {
     let hours = (seconds / 3600.0).floor() as u32;
@@ -17,9 +42,61 @@ fn format_time(seconds: f64) -> String {
     format!("{:02}:{:02}:{:02}", hours, minutes, seconds)
 }
 
+fn parse_fps(avg_frame_rate: &str) -> Result<f64, Box<dyn std::error::Error>> {
+    let parts: Vec<&str> = avg_frame_rate.split('/').collect();
+    if parts.len() == 2 {
+        let numerator: f64 = parts[0].parse()?;
+        let denominator: f64 = parts[1].parse()?;
+        if denominator != 0.0 {
+            return Ok(numerator / denominator);
+        }
+    }
+    Err(Box::new(std::io::Error::new(
+        std::io::ErrorKind::InvalidData,
+        "Invalid frame rate format",
+    )))
+}
+fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, Box<dyn std::error::Error>> {
+    let output = Command::new("ffprobe")
+        .args(&[
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "format=duration",
+            "-show_entries",
+            "stream=avg_frame_rate",
+            "-of",
+            "json",
+            file_path,
+        ])
+        .output()?;
+
+    if !output.status.success() {
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Failed to execute ffprobe",
+        )));
+    }
+
+    let ffprobe_output: FFProbeOutput = serde_json::from_slice(&output.stdout)?;
+
+    let duration: f64 = ffprobe_output.format.duration.parse()?;
+
+    let avg_frame_rate = &ffprobe_output.streams[0].avg_frame_rate;
+    let fps: f64 = parse_fps(avg_frame_rate)?;
+
+    Ok(VideoMetadata {
+        file_path: file_path.into(),
+        duration,
+        fps,
+    })
+}
+
 #[tauri::command]
 #[specta::specta]
-fn select_video(state: State<VideoFilePath>) -> Result<String, String> {
+fn select_video(state: State<VideoFilePath>) -> Result<VideoMetadata, String> {
     let (sender, receiver) = std::sync::mpsc::channel();
     FileDialogBuilder::new()
         .add_filter("Video files", &["mp4", "mkv", "avi", "mov", "flv", "wmv"])
@@ -37,7 +114,10 @@ fn select_video(state: State<VideoFilePath>) -> Result<String, String> {
     }
 
     *state.0.lock().unwrap() = Some(selected_path.clone());
-    Ok(selected_path)
+
+    let file_metadata =
+        get_video_metadata(selected_path.as_str()).map_err(|err| err.to_string())?;
+    Ok(file_metadata)
 }
 
 #[tauri::command]

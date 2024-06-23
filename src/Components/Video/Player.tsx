@@ -1,4 +1,4 @@
-import { JSX, Show, createEffect, onCleanup } from "solid-js";
+import { JSX, Show, createEffect, createSignal, onCleanup } from "solid-js";
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { videoState, setVideoState } from "@/Stores/VideoStore";
 import * as commands from "@/bindings"
@@ -7,6 +7,7 @@ interface VideoPlayerProps extends JSX.MediaHTMLAttributes<HTMLVideoElement> { }
 
 export default function VideoPlayer(props: VideoPlayerProps) {
 	let videoRef: HTMLVideoElement | undefined;
+	const [playbackSpeed, setPlaybackSpeed] = createSignal(1)
 
 	const togglePlay = () => {
 		if (!videoRef) return;
@@ -57,25 +58,30 @@ export default function VideoPlayer(props: VideoPlayerProps) {
 		setVideoState("cropEnd", newEnd);
 	};
 
+	const handlePlaybackSpeedChange = (e: Event) => {
+		const input = e.target as HTMLInputElement;
+		const value = parseFloat(input.value)
+
+		setPlaybackSpeed(value)
+
+		if (!videoRef) return;
+
+		videoRef.playbackRate = value;
+	}
+
 	const selectFile = async () => {
 		try {
-			const selectedFilePath = await commands.selectVideo();
+			const { duration, file_path: filePath, fps } = await commands.selectVideo();
 
-			const tempVideo = document.createElement("video")
-			tempVideo.src = convertFileSrc(selectedFilePath)
-
-			tempVideo.addEventListener("loadedmetadata", () => {
-				setVideoState({
-					cropEnd: tempVideo.duration,
-					cropStart: 0,
-					duration: tempVideo.duration,
-					filePath: selectedFilePath,
-					isPlaying: false,
-					progress: 0
-				})
+			setVideoState({
+				filePath,
+				duration,
+				fps,
+				cropEnd: duration,
+				cropStart: 0,
+				isPlaying: false,
+				progress: 0
 			})
-
-			tempVideo.remove()
 		} catch (error) {
 			console.error("Failed to select video:", error);
 		}
@@ -135,8 +141,8 @@ export default function VideoPlayer(props: VideoPlayerProps) {
 			{/* controls */}
 			{
 				videoState.filePath &&
-				<div class="flex flex-col mt-2 bg-opacity-50 bg-purple-400 w-full p-4">
-					<div class="flex items-center mb-2">
+				<div class="flex flex-col gap-2 bg-opacity-50 bg-purple-400 w-full p-4">
+					<div class="flex items-center">
 						<button onClick={togglePlay} class="px-4 py-2 bg-blue-500 text-white rounded">
 							{videoState.isPlaying ? "Pause" : "Play"}
 						</button>
@@ -151,7 +157,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
 						/>
 						<span class="text-white">{videoState.progress.toFixed(2)}s</span>
 					</div>
-					<div class="flex items-center mb-2">
+					<div class="flex items-center">
 						<label for="cropStart" class="mr-2 text-white">Start:</label>
 						<input
 							type="range"
@@ -165,7 +171,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
 						/>
 						<span class="text-white">{videoState.cropStart.toFixed(2)}s</span>
 					</div>
-					<div class="flex items-center mb-2">
+					<div class="flex items-center">
 						<label for="cropEnd" class="mr-2 text-white">End:</label>
 						<input
 							type="range"
@@ -178,6 +184,25 @@ export default function VideoPlayer(props: VideoPlayerProps) {
 							class="flex-1 mx-4"
 						/>
 						<span class="text-white">{videoState.cropEnd.toFixed(2)}s</span>
+					</div>
+					<div class="flex items-center gap-2">
+						<label for="playbackSpeed" class="text-white">Playback Speed:</label>
+						<input
+							type="range"
+							id="playbackSpeed"
+							min="0.5"
+							max={1.5}
+							step="0.1"
+							value={playbackSpeed()}
+							onInput={handlePlaybackSpeedChange}
+							class="flex-1 mx-4"
+						/>
+						<span class="text-white">{playbackSpeed()}s</span>
+						<span class="text-blue-400 cursor-pointer" onclick={() => {
+							setPlaybackSpeed(1);
+							if (!videoRef) return;
+							videoRef.playbackRate = 1
+						}}>reset</span>
 					</div>
 					<button onClick={cropVideo} class="px-4 py-2 bg-red-500 text-white rounded">Crop Video</button>
 				</div>

@@ -15,7 +15,7 @@ export function cropVideo(cropStart: number, cropEnd: number) {
 }
 
 export function selectVideo() {
-    return invoke()<string>("select_video")
+    return invoke()<VideoMetadata>("select_video")
 }
 
-
+export type VideoMetadata = { file_path: string; duration: number; fps: number }

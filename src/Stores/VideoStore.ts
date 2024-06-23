@@ -7,6 +7,7 @@ export interface VideoState {
 	cropEnd: number;
 	filePath: string;
 	duration: number;
+	fps: number;
 }
 
 export const [videoState, setVideoState] = createStore<VideoState>({
@@ -15,5 +16,6 @@ export const [videoState, setVideoState] = createStore<VideoState>({
 	cropStart: 0,
 	cropEnd: 0,
 	filePath: "",
-	duration: 0
+	duration: 0,
+	fps: 0,
 });
