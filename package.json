@@ -12,9 +12,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@nanostores/solid": "^0.4.2",
     "@tauri-apps/api": "^1",
-    "nanostores": "^0.10.3",
+    "solid-icons": "^1.1.0",
     "solid-js": "^1.7.8"
   },
   "devDependencies": {
