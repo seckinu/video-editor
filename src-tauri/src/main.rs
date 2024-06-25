@@ -3,6 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 use specta::{collect_types, Type};
+use std::os::windows::process::CommandExt;
 use std::process::Command;
 use std::str;
 use std::sync::Mutex;
@@ -62,6 +63,7 @@ fn parse_fps(avg_frame_rate: &str) -> Result<f64, Box<dyn std::error::Error>> {
 }
 fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, Box<dyn std::error::Error>> {
     let output = Command::new("ffprobe")
+        .creation_flags(0x08000000)
         .args(&[
             "-v",
             "error",
@@ -162,6 +164,7 @@ fn crop_video(
     let cut_duration = format_time(crop_end - crop_start);
 
     let ffmpeg_status = Command::new("ffmpeg")
+        .creation_flags(0x08000000)
         .arg("-ss")
         .arg(&start_time)
         .arg("-i")
