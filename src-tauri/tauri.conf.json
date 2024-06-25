@@ -6,8 +6,8 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "video-editor",
-    "version": "0.0.0"
+    "productName": "feu_video_editor",
+    "version": "1.0.0"
   },
   "tauri": {
     "allowlist": {
@@ -29,7 +29,7 @@
     },
     "windows": [
       {
-        "title": "video-editor",
+        "title": "feu's Video Editor",
         "width": 800,
         "height": 600
       }
@@ -40,7 +40,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "com.feusanc.video-editor",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
