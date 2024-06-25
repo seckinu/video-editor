@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "feu_video_editor",
+    "productName": "feusVideoEditor",
     "version": "1.0.0"
   },
   "tauri": {

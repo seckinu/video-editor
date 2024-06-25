@@ -1,7 +1,7 @@
 {
-  "name": "video-editor",
-  "version": "0.0.0",
-  "description": "",
+  "name": "feus-video-editor",
+  "version": "1.0.0",
+  "description": "feusanc's video editor",
   "type": "module",
   "scripts": {
     "start": "vite",
