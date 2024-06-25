@@ -28,6 +28,13 @@ export default function VideoPlayer(_props: VideoPlayerProps) {
 		const { videoRef } = videoState;
 		if (!videoRef) return;
 
+		videoRef.muted = videoState.isMuted
+	})
+
+	createEffect(() => {
+		const { videoRef } = videoState;
+		if (!videoRef) return;
+
 		videoRef.volume = videoState.volume;
 	})
 

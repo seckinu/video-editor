@@ -1,5 +1,5 @@
 import { setVideoState, togglePlay, videoMetadata, videoState } from "@/Stores/VideoStore";
-import { FaSolidPause, FaSolidPlay, FaSolidScissors, FaSolidClock, FaSolidVolumeHigh } from "solid-icons/fa";
+import { FaSolidPause, FaSolidPlay, FaSolidScissors, FaSolidClock, FaSolidVolumeHigh, FaSolidVolumeXmark } from "solid-icons/fa";
 import { JSX, Match, Switch } from "solid-js";
 
 interface PlayerControlsProps { }
@@ -140,7 +140,7 @@ export default function PlayerControls(_props: PlayerControlsProps): JSX.Element
 					<div
 						class="overflow-hidden transition-[max-width gap padding] duration-200 group-hover:max-w-64 group-hover:gap-4 group-hover:delay-0 group-hover:pr-4 delay-500 max-w-0 gap-0 flex-1 pr-0 flex"
 					>
-						<span class="cursor-auto">{(videoState.volume * 100).toFixed(0)}%</span>
+						<span class="cursor-auto min-w-10 text-right">{(videoState.volume * 100).toFixed(0)}%</span>
 						<input
 							type="range"
 							min="0"
@@ -149,12 +149,22 @@ export default function PlayerControls(_props: PlayerControlsProps): JSX.Element
 							value={videoState.volume}
 							onInput={(e) => {
 								setVideoState("volume", parseFloat(e.currentTarget.value))
+								setVideoState("isMuted", false)
 							}}
 							class="cursor-pointer"
 						/>
 					</div>
 
+					<div onclick={() => { setVideoState("isMuted", !videoState.isMuted) }}>
+						<Switch>
+							<Match when={videoState.isMuted || videoState.volume === 0}>
+								<FaSolidVolumeXmark />
+							</Match>
+							<Match when={!videoState.isMuted}>
 					<FaSolidVolumeHigh />
+							</Match>
+						</Switch>
+					</div>
 				</li>
 			</ul>
 		</div>

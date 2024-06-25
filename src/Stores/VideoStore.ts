@@ -20,6 +20,7 @@ export interface VideoState {
 	cropEnd: number;
 	playbackSpeed: number;
 	volume: number,
+	isMuted: boolean,
 	videoRef?: HTMLVideoElement
 }
 
@@ -30,6 +31,7 @@ export const [videoState, setVideoState] = createStore<VideoState>({
 	cropEnd: 0,
 	playbackSpeed: 1,
 	volume: 1,
+	isMuted: false
 });
 
 export const togglePlay = () => {
