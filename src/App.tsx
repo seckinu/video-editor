@@ -1,4 +1,3 @@
-import "./App.css";
 import VideoPlayer from "./Components/Video/Player";
 
 function App() {
