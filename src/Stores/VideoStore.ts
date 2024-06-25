@@ -19,6 +19,7 @@ export interface VideoState {
 	cropStart: number;
 	cropEnd: number;
 	playbackSpeed: number;
+	volume: number,
 	videoRef?: HTMLVideoElement
 }
 
@@ -28,6 +29,7 @@ export const [videoState, setVideoState] = createStore<VideoState>({
 	cropStart: 0,
 	cropEnd: 0,
 	playbackSpeed: 1,
+	volume: 1,
 });
 
 export const togglePlay = () => {
@@ -52,21 +54,20 @@ export const selectFile = async () => {
 	try {
 		const { duration, file_path: filePath, fps } = await commands.selectVideo();
 
-		console.log(duration, filePath, fps)
-
 		setVideoState({
 			cropEnd: duration,
 			cropStart: 0,
 			isPlaying: false,
 			progress: 0,
 			playbackSpeed: 1,
+			volume: 1,
 		})
+
 		setVideoMetadata({
 			duration,
 			filePath,
 			fps
 		})
-
 	} catch (error) {
 		console.error("Failed to select video:", error);
 	}

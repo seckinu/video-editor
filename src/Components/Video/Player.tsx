@@ -25,6 +25,13 @@ export default function VideoPlayer(_props: VideoPlayerProps) {
 	};
 
 	createEffect(() => {
+		const { videoRef } = videoState;
+		if (!videoRef) return;
+
+		videoRef.volume = videoState.volume;
+	})
+
+	createEffect(() => {
 		const { videoRef } = videoState
 		if (!videoRef) return;
 		videoRef.currentTime = videoState.cropStart
@@ -53,7 +60,7 @@ export default function VideoPlayer(_props: VideoPlayerProps) {
 	});
 
 	return (
-		<div class="relative flex flex-col w-full h-full max-w-full max-h-full">
+		<div class="relative flex flex-col justify-between w-full h-full max-w-full max-h-full">
 			<nav class="flex justify-between items-center bg-slate-700 p-2">
 				<ul>
 					<button onClick={selectFile} class="px-2 py-1 bg-green-500 text-white rounded">Open...</button>

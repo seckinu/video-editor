@@ -1,5 +1,5 @@
 import { setVideoState, togglePlay, videoMetadata, videoState } from "@/Stores/VideoStore";
-import { FaSolidPause, FaSolidPlay, FaSolidScissors, FaSolidClock } from "solid-icons/fa";
+import { FaSolidPause, FaSolidPlay, FaSolidScissors, FaSolidClock, FaSolidVolumeHigh } from "solid-icons/fa";
 import { JSX, Match, Switch } from "solid-js";
 
 interface PlayerControlsProps { }
@@ -51,8 +51,8 @@ export default function PlayerControls(_props: PlayerControlsProps): JSX.Element
 
 	return (
 		<div class={`flex flex-col gap-2 bg-opacity-50 bg-slate-700 w-full py-2 px-4 list-none text-white`}>
-			<div class="flex justify-between gap-4 *:flex *:items-center *:justify-center *:py-2 *:px-3">
-				<li onClick={togglePlay} class="cursor-pointer rounded-full bg-neutral-400/50 hover:bg-neutral-500/50">
+			<ul class="flex justify-between gap-4 *:items-center *:justify-center *:py-2 *:px-3">
+				<li onClick={togglePlay} class="cursor-pointer rounded-full bg-neutral-400/50 hover:bg-neutral-500/50 flex">
 					<Switch>
 						<Match when={videoState.isPlaying}>
 							<FaSolidPause />
@@ -63,7 +63,7 @@ export default function PlayerControls(_props: PlayerControlsProps): JSX.Element
 					</Switch>
 				</li>
 
-				<li class="flex flex-1 gap-2">
+				<li class="flex flex-1 gap-4">
 					<input
 						type="range"
 						min="0"
@@ -73,10 +73,10 @@ export default function PlayerControls(_props: PlayerControlsProps): JSX.Element
 						onInput={handleProgressChange}
 						class="flex-1"
 					/>
-					<span class="text-white">{videoState.progress.toFixed(2)}s</span>
+					<span class="text-white">{videoState.progress.toFixed(0)}s</span>
 				</li>
 
-				<li class="relative group">
+				<li class="relative group flex">
 					<FaSolidScissors />
 
 					<ul class="absolute -left-48 -top-24 bg-black bg-opacity-70 hidden group-hover:flex flex-col gap-2 p-2">
@@ -112,7 +112,7 @@ export default function PlayerControls(_props: PlayerControlsProps): JSX.Element
 					</ul>
 				</li>
 
-				<li class="relative group">
+				<li class="relative group flex">
 					<FaSolidClock />
 
 					<ul class="absolute -left-36 -top-20 bg-black bg-opacity-70 hidden group-hover:flex flex-col gap-2 p-2">
@@ -135,7 +135,28 @@ export default function PlayerControls(_props: PlayerControlsProps): JSX.Element
 						</li>
 					</ul>
 				</li>
-			</div>
+
+				<li class="relative group flex cursor-pointer">
+					<div
+						class="overflow-hidden transition-[max-width gap padding] duration-200 group-hover:max-w-64 group-hover:gap-4 group-hover:delay-0 group-hover:pr-4 delay-500 max-w-0 gap-0 flex-1 pr-0 flex"
+					>
+						<span class="cursor-auto">{(videoState.volume * 100).toFixed(0)}%</span>
+						<input
+							type="range"
+							min="0"
+							max="1"
+							step=".01"
+							value={videoState.volume}
+							onInput={(e) => {
+								setVideoState("volume", parseFloat(e.currentTarget.value))
+							}}
+							class="cursor-pointer"
+						/>
+					</div>
+
+					<FaSolidVolumeHigh />
+				</li>
+			</ul>
 		</div>
 	)
 }
