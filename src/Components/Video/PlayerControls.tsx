@@ -4,6 +4,21 @@ import { JSX, Match, Switch } from "solid-js";
 
 interface PlayerControlsProps { }
 
+function formatTime(time: number) {
+	const hours = Math.floor(time / 3600);
+	const minutes = Math.floor((time % 3600) / 60);
+	const seconds = Math.floor(time % 60);
+
+	const formattedHours = hours.toString().padStart(2, '0');
+	const formattedMinutes = minutes.toString().padStart(2, '0');
+	const formattedSeconds = seconds.toString().padStart(2, '0');
+
+	let formattedTime = formattedHours === "00" ? "" : `${formattedHours}:`
+	formattedTime = formattedTime + `${formattedMinutes}:${formattedSeconds}`
+
+	return formattedTime;
+}
+
 export default function PlayerControls(_props: PlayerControlsProps): JSX.Element {
 	const handleProgressChange = (e: Event) => {
 		const input = e.currentTarget as HTMLInputElement;
@@ -73,7 +88,7 @@ export default function PlayerControls(_props: PlayerControlsProps): JSX.Element
 						onInput={handleProgressChange}
 						class="flex-1"
 					/>
-					<span class="text-white">{videoState.progress.toFixed(0)}s</span>
+					<span class="text-white">{formatTime(videoState.progress)}</span>
 				</li>
 
 				<li class="relative group flex">
@@ -138,7 +153,7 @@ export default function PlayerControls(_props: PlayerControlsProps): JSX.Element
 
 				<li class="relative group flex cursor-pointer">
 					<div
-						class="overflow-hidden transition-[max-width gap padding] duration-200 group-hover:max-w-64 group-hover:gap-4 group-hover:delay-0 group-hover:pr-4 delay-500 max-w-0 gap-0 flex-1 pr-0 flex"
+						class="overflow-hidden transition-[max-width gap padding] duration-200 group-hover:max-w-64 group-hover:gap-4 group-hover:pr-4 max-w-0 gap-0 flex-1 pr-0 flex"
 					>
 						<span class="cursor-auto min-w-10 text-right">{(videoState.volume * 100).toFixed(0)}%</span>
 						<input
@@ -161,7 +176,7 @@ export default function PlayerControls(_props: PlayerControlsProps): JSX.Element
 								<FaSolidVolumeXmark />
 							</Match>
 							<Match when={!videoState.isMuted}>
-					<FaSolidVolumeHigh />
+								<FaSolidVolumeHigh />
 							</Match>
 						</Switch>
 					</div>
